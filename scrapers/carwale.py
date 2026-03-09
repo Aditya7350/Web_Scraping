@@ -5,7 +5,9 @@ import random
 def get_carwale_prices(model):
     url = f"https://www.carwale.com/search/?q={model}"
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+        "Referer": "https://www.google.com/"
     }
 
     try:
@@ -17,13 +19,18 @@ def get_carwale_prices(model):
         if cars and len(cars) > 2:
             for car in cars[:10]:
                 name = car.select_one(".o-jLqgOG").text if car.select_one(".o-jLqgOG") else "NA"
+                
+                # Filter to avoid "Suggested" cars from different brands
+                if model.lower().split()[0] not in name.lower():
+                    continue
+
                 price = car.select_one(".o-cJrNdO").text if car.select_one(".o-cJrNdO") else "NA"
                 results.append({
                     "website": "CarWale",
                     "name": name,
                     "price": price
                 })
-            return results
+            if results: return results
     except Exception as e:
         pass
         
